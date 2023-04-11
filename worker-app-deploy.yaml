@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-app-deploy
+  labels:
+    name: worker-app-deploy
+spec:
+  template:
+    metadata:
+      name: worker-app-pod
+      labels:
+        name: worker-app
+        app: demo-voting-app
+    spec:
+      containers:
+       - name: worker-app-container
+         image: kodekloud/examplevotingapp_worker:v1
+         args:
+          - /bin/sh
+          - -c
+          - touch /tmp/healthy; sleep 30; rm -f /tmp/healthy; sleep 600
+         livenessProbe:
+           exec:
+             command:
+              - cat
+              - /tmp/healthy
+           initialDelaySeconds: 30
+           periodSeconds: 30
+  replicas: 1
+  selector:
+    matchLabels:
+      name: worker-app
+      app: demo-voting-app
